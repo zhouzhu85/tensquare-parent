@@ -10,11 +10,11 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import util.IdWorker;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -44,6 +44,28 @@ public class SpitService {
 
     public void save(Spit spit){
         spit.set_id(idWorker.nextId()+"");
+        //发布时间
+        spit.setPublishtime(new Date());
+        //浏览量
+        spit.setVisits(0);
+        //分享数
+        spit.setShare(0);
+        //点赞数
+        spit.setThumbup(0);
+        //回复数
+        spit.setComment(0);
+        //状态
+        spit.setState("1");
+        //如果当前添加的吐槽，有父节点，那么父节点的吐槽回复数要加一
+        if (spit.getParentid()!=null && !"".equals(spit.getParentid())){
+            Query query=new Query();
+            query.addCriteria(Criteria.where("_id").is(spit.get_id()));
+
+            Update update=new Update();
+            update.inc("comment",1);
+
+            mongoTemplate.updateFirst(query,update,"spit");
+        }
         spitDao.save(spit);
     }
 
