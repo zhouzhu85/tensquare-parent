@@ -16,6 +16,8 @@
         <module>tensquare-article</module>
         <module>tensquare-gathering</module>
         <module>tensquare-spit</module>
+        <module>tensquare-search</module>
+        <module>tensquare-user</module>
     </modules>
 
     <name>tensquare-parent</name>
