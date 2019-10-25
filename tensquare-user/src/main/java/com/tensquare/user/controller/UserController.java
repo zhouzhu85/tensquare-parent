@@ -4,12 +4,8 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.web.bind.annotation.*;
 
 import com.tensquare.user.pojo.User;
 import com.tensquare.user.service.UserService;
@@ -29,8 +25,41 @@ public class UserController {
 
 	@Autowired
 	private UserService userService;
-	
-	
+
+	@Autowired
+	private RedisTemplate redisTemplate;
+
+	/**
+	 * 注册
+	 * @param code
+	 * @return
+	 */
+	@PostMapping("register/{code}")
+	public Result regist(@PathVariable String code,@RequestBody User user){
+		//获取验证码
+		String checkcodeRedis=(String) redisTemplate.opsForValue().get("checkcode_"+user.getMobile());
+
+		if (checkcodeRedis.isEmpty()){
+			return new Result(false,StatusCode.ERROR,"请先获取手机验证码");
+		}
+		if (!checkcodeRedis.equals(code)){
+			return new Result(false,StatusCode.ERROR,"请输入正确的验证码");
+		}
+		userService.add(user);
+		return new Result(true,StatusCode.OK,"注册成功");
+	}
+
+	/**
+	 * 发送短信验证码
+	 * @param mobile
+	 * @return
+	 */
+	@PostMapping("sendsms/{mobile}")
+	public Result sendSms(@PathVariable String mobile){
+		userService.sendSms(mobile);
+		return new Result(true,StatusCode.OK,"发送成功");
+	}
+
 	/**
 	 * 查询全部数据
 	 * @return

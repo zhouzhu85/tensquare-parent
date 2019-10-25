@@ -1,22 +1,20 @@
 package com.tensquare.user.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Selection;
 
+import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import util.IdWorker;
@@ -39,6 +37,11 @@ public class UserService {
 	@Autowired
 	private IdWorker idWorker;
 
+	@Autowired
+    private RedisTemplate redisTemplate;
+
+	@Autowired
+    private RabbitTemplate rabbitTemplate;
 	/**
 	 * 查询全部列表
 	 * @return
@@ -87,6 +90,12 @@ public class UserService {
 	 */
 	public void add(User user) {
 		user.setId( idWorker.nextId()+"" );
+		user.setFollowcount(0);
+		user.setFanscount(0);
+		user.setOnline(0L);
+		user.setRegdate(new Date());
+		user.setUpdatedate(new Date());
+		user.setLastdate(new Date());
 		userDao.save(user);
 	}
 
@@ -161,5 +170,18 @@ public class UserService {
 		};
 
 	}
+
+	public void sendSms(String mobile) {
+		//生成六位数字随机数
+		String checkcode = RandomStringUtils.randomNumeric(6);
+		//向redis存储
+        redisTemplate.opsForValue().set("checkcode_"+mobile,checkcode,6, TimeUnit.HOURS);
+        Map<String,String> map=new HashMap<>();
+        map.put("mobile",mobile);
+        map.put("checkcode",checkcode);
+        rabbitTemplate.convertAndSend("sms",map);
+
+        System.out.println("验证码：" + checkcode);
+    }
 
 }
