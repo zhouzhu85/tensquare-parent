@@ -29,6 +29,15 @@ public class UserController {
 	@Autowired
 	private RedisTemplate redisTemplate;
 
+	@PostMapping("login")
+     public Result login(@RequestBody User user){
+	    user=userService.login(user.getMobile(),user.getPassword());
+	    if (user==null){
+	        return new Result(false,StatusCode.LOGINERROR,"登录失败");
+        }
+	    return new Result(true,StatusCode.OK,"登录成功");
+    }
+
 	/**
 	 * 注册
 	 * @param code

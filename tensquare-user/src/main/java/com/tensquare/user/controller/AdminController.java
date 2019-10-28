@@ -4,12 +4,8 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 
 import com.tensquare.user.pojo.Admin;
 import com.tensquare.user.service.AdminService;
@@ -17,6 +13,8 @@ import com.tensquare.user.service.AdminService;
 import entity.PageResult;
 import entity.Result;
 import entity.StatusCode;
+import util.IdWorker;
+
 /**
  * 控制器层
  * @author Administrator
@@ -29,8 +27,21 @@ public class AdminController {
 
 	@Autowired
 	private AdminService adminService;
-	
-	
+
+	@Autowired
+	private BCryptPasswordEncoder encoder;
+
+	@Autowired
+	private IdWorker idWorker;
+
+	@PostMapping("login")
+	public Result login(@RequestBody Admin admin){
+		Admin adminLogin=adminService.login(admin);
+		if (adminLogin==null){
+			return new Result(false,StatusCode.LOGINERROR,"登录失败");
+		}
+		return new Result(true,StatusCode.OK,"登录成功");
+	}
 	/**
 	 * 查询全部数据
 	 * @return
@@ -80,6 +91,8 @@ public class AdminController {
 	 */
 	@RequestMapping(method=RequestMethod.POST)
 	public Result add(@RequestBody Admin admin  ){
+		admin.setId(idWorker.nextId()+"");
+		admin.setPassword(encoder.encode(admin.getPassword()));
 		adminService.add(admin);
 		return new Result(true,StatusCode.OK,"增加成功");
 	}
