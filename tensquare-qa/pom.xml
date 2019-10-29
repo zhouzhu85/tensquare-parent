@@ -21,6 +21,10 @@
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.tensquare</groupId>
             <artifactId>tensquare-common</artifactId>
             <version>1.0-SNAPSHOT</version>

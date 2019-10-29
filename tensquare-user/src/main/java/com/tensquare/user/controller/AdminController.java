@@ -1,4 +1,5 @@
 package com.tensquare.user.controller;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,6 +15,7 @@ import entity.PageResult;
 import entity.Result;
 import entity.StatusCode;
 import util.IdWorker;
+import util.JwtUtil;
 
 /**
  * 控制器层
@@ -34,13 +36,21 @@ public class AdminController {
 	@Autowired
 	private IdWorker idWorker;
 
+	@Autowired
+	private JwtUtil jwtUtil;
+
 	@PostMapping("login")
 	public Result login(@RequestBody Admin admin){
 		Admin adminLogin=adminService.login(admin);
 		if (adminLogin==null){
 			return new Result(false,StatusCode.LOGINERROR,"登录失败");
 		}
-		return new Result(true,StatusCode.OK,"登录成功");
+		//生成令牌
+		String token = jwtUtil.createJWT(adminLogin.getId(), adminLogin.getLoginname(), "admin");
+		Map<String,Object> map=new HashMap<>();
+		map.put("token",token);
+		map.put("roles","admin");
+		return new Result(true,StatusCode.OK,"登录成功",map);
 	}
 	/**
 	 * 查询全部数据
