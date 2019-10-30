@@ -5,9 +5,15 @@ spring:
     name: tensquare-base
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://192.168.126.134:3306/tensquare_base?characterEncoding=utf-8
+    url: jdbc:mysql://192.168.126.138:3306/tensquare_base?characterEncoding=utf-8
     username: root
     password: root
   jpa:
     database: mysql
     show-sql: true
+eureka:
+  client:
+    service-url:
+      defaultZone: http://127.0.0.1:6868/eureka/
+  instance:
+    prefer-ip-address: true
