@@ -19,6 +19,7 @@
         <module>tensquare-search</module>
         <module>tensquare-user</module>
         <module>tensquare-sms</module>
+        <module>tensquare-eureka</module>
     </modules>
 
     <name>tensquare-parent</name>
@@ -48,7 +49,17 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>Finchley.M9</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <repositories>
         <repository>
             <id>spring-snapshots</id>
