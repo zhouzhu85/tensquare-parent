@@ -23,6 +23,7 @@
         <module>tensquare-friend</module>
         <module>tensquare-manager</module>
         <module>tensquare-web</module>
+        <module>tensquare-config</module>
     </modules>
 
     <name>tensquare-parent</name>
